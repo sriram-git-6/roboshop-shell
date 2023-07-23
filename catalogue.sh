@@ -1,40 +1,40 @@
-echo ">>>>>>>>>>>>>create catalogue service<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>create catalogue service<<<<<<<<<<<<<<< \e[0m"
 cp catalogue.service /etc/systemd/system/catalogue.service
 
-echo ">>>>>>>>>>>>>Create mongodb repofile<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Create mongodb repofile<<<<<<<<<<<<<<< \e[0m"
 cp mongo-repofile /etc/yum.repos.d/mongo.repo
 
-echo ">>>>>>>>>>>>>Download and install nodejs repos<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Download and install nodejs repos<<<<<<<<<<<<<<< \e[0m"
 curl -sL https://rpm.nodesource.com/setup_lts.x | bash
 
-echo ">>>>>>>>>>>>>install nodejs<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>install nodejs<<<<<<<<<<<<<<< \e[0m"
 yum install nodejs -y
 
-echo ">>>>>>>>>>>>>Create a user for roboshop<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Create a user for roboshop<<<<<<<<<<<<<<< \e[0m"
 useradd roboshop
 
-echo ">>>>>>>>>>>>>Create application directory<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Create application directory<<<<<<<<<<<<<<< \e[0m"
 mkdir /app
 
-echo ">>>>>>>>>>>>>Download the application content <<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Download the application content <<<<<<<<<<<<<<< \e[0m"
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue.zip
 
-echo ">>>>>>>>>>>>>Change directory to app<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Change directory to app<<<<<<<<<<<<<<< \e[0m"
 cd /app
 
-echo ">>>>>>>>>>>>>Extract the application content<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Extract the application content<<<<<<<<<<<<<<< \e[0m"
 unzip /tmp/catalogue.zip
 
-echo ">>>>>>>>>>>>>Install nodejs dependencies <<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Install nodejs dependencies <<<<<<<<<<<<<<< \e[0m"
 npm install
 
-echo ">>>>>>>>>>>>>Install mongo client<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Install mongo client<<<<<<<<<<<<<<< \e[0m"
 yum install mongodb-org-shell -y
 
-echo ">>>>>>>>>>>>>Load catalogue schema<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Load catalogue schema<<<<<<<<<<<<<<< \e[0m"
 mongo --host mongodb.devops746.online </app/schema/catalogue.js
 
-echo ">>>>>>>>>>>>>Daemon reload and restart service<<<<<<<<<<<<<<<"
+echo -e "\e[36m >>>>>>>>>>>>>Daemon reload and restart service<<<<<<<<<<<<<<< \e[0m"
 systemctl daemon-reload
 systemctl enable catalogue
 systemctl restart catalogue
