@@ -34,7 +34,7 @@ npm install > /tmp/roboshop.log
 echo -e "\e[36m >>>>>>>>>>>>>Install mongo client<<<<<<<<<<<<<<< \e[0m"
 yum install mongodb-org-shell -y > /tmp/roboshop.log
 
-echo -e "\e[36m >>>>>>>>>>>>>Load catalogue schema<<<<<<<<<<<<<<< \e[0m"
+echo -e "\e[36m >>>>>>>>>>>>>Load catalogue schema<<<<<<<<<<<<<<<< \e[0m"
 mongo --host mongodb.devops746.online </app/schema/catalogue.js > /tmp/roboshop.log
 
 echo -e "\e[36m >>>>>>>>>>>>>Daemon reload and restart service<<<<<<<<<<<<<<< \e[0m"
