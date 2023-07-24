@@ -1,16 +1,6 @@
-cp user.service /etc/systemd/system/user.service
-cp mongo-repofile /etc/yum.repos.d/mongo.repo
-curl -sL https://rpm.nodesource.com/setup_lts.x | bash
-yum install nodejs -y
-useradd roboshop
-mkdir /app
-curl -L -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user.zip
-cd /app
-unzip /tmp/user.zip
-npm install
-yum install mongodb-org-shell -y
-mongo --host mongodb.devops746.online </app/schema/user.js
-systemctl daemon-reload
+####declaring a variable component=user####
+component=user
+###### It loads everything from common.sh into user.sh in run time ######
+source common.sh
 
-systemctl enable user
-systemctl restart user
+nodejs
