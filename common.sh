@@ -61,22 +61,22 @@ func_nodejs_cat_user()
 
 func_javaship()
 {
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Install maven<<<<<<<<<<<\e[0m" | tee -a {log}
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Install maven<<<<<<<<<<<\e[0m" | tee -a ${log}
   yum install maven -y &>> ${log}
 
   func_prereq
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Build the package<<<<<<<<<<<\e[0m" | tee -a {log}
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Build the package<<<<<<<<<<<\e[0m" | tee -a ${log}
   mvn clean package &>> ${log}
   mv target/${component}-1.0.jar ${component}.jar &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Daemon Reload<<<<<<<<<<<\e[0m" | tee -a {log}
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Daemon Reload<<<<<<<<<<<\e[0m" | tee -a ${log}
   systemctl daemon-reload &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Install mysql client<<<<<<<<<<<\e[0m" | tee -a {log}
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Install mysql client<<<<<<<<<<<\e[0m" | tee -a ${log}
   yum install mysql -y &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Load schema<<<<<<<<<<<\e[0m" | tee -a {log}
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Load schema<<<<<<<<<<<\e[0m" | tee -a ${log}
   mysql -h mysql.devops746.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>> ${log}
 
   func_systemd
@@ -84,13 +84,28 @@ func_javaship()
 
 func_python_payment()
 {
-echo -e "\e[36m >>>>>>>>>>>>>>>>>>>>Install python<<<<<<<<<<<<<<<<<<<<<\e[0m" &>>${log}
+echo -e "\e[36m >>>>>>>>>>>>>>>>>>>>Install python<<<<<<<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
 yum install python36 gcc python3-devel -y &>>${log}
 
 func_prereq
 
-echo -e "\e[36m >>>>>>>>>>>>>>>>>>>>Download dependencies<<<<<<<<<<<<<<<<<<<<<\e[0m" &>>${log}
+echo -e "\e[36m >>>>>>>>>>>>>>>>>>>>Download dependencies<<<<<<<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
 pip3.6 install -r requirements.txt &>>${log}
+
+func_systemd
+}
+
+func_go_dispatch()
+{
+echo -e "\e[36m >>>>>>>>>>>>>>>>>>>>>>>>>>Install golang<<<<<<<<<<<<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+yum install golang -y &>>${log}
+
+func_prereq
+
+echo -e "\e[36m >>>>>>>>>>>>>>>>>>>Download the dependencies and build<<<<<<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+go mod init ${component} &>>${log}
+go get &>>${log}
+go build &>>${log}
 
 func_systemd
 }
