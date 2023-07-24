@@ -2,7 +2,10 @@ log=/tmp/roboshop.log
 
 func_prereq()
 {
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create user for roboshop <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create user service <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    cp ${component}.service /etc/systemd/system/${component}.service &>> ${log}
+
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create user for roboshop <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
     useradd roboshop &>> ${log}
 
     echo -e "\e[36m >>>>>>>>>>>>>>>>>> delete app directory <<<<<<<<<<<\e[0m" | tee -a ${log}
@@ -12,7 +15,7 @@ func_prereq()
     mkdir /app &>> ${log}
 
     echo -e "\e[36m >>>>>>>>>>>>>>>>>> Download application content <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-    curl -L -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/user.zip &>> ${log}
+    curl -L -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/${component}.zip &>> ${log}
 
     echo -e "\e[36m >>>>>>>>>>>>>>>>>> Change directory to app <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
     cd /app &>> ${log}
@@ -32,9 +35,6 @@ func_systemd()
 
 func_nodejs_cat_user()
 {
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create user service <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  cp ${component}.service /etc/systemd/system/${component}.service &>> ${log}
-
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create mongodb repofile <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   cp mongo-repofile /etc/yum.repos.d/mongo.repo &>> ${log}
 
@@ -61,9 +61,6 @@ func_nodejs_cat_user()
 
 func_javaship()
 {
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Create shipping service<<<<<<<<<<<\e[0m" | tee -a {log}
-  cp ${component}.service /etc/systemd/system/${component}.service &>> ${log}
-
   echo -e "\e[36m >>>>>>>>>>>>>>>>Install maven<<<<<<<<<<<\e[0m" | tee -a {log}
   yum install maven -y &>> ${log}
 
@@ -83,4 +80,17 @@ func_javaship()
   mysql -h mysql.devops746.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>> ${log}
 
   func_systemd
+}
+
+func_python_payment()
+{
+echo -e "\e[36m >>>>>>>>>>>>>>>>>>>>Install python<<<<<<<<<<<<<<<<<<<<<\e[0m" &>>${log}
+yum install python36 gcc python3-devel -y &>>${log}
+
+func_prereq
+
+echo -e "\e[36m >>>>>>>>>>>>>>>>>>>>Download dependencies<<<<<<<<<<<<<<<<<<<<<\e[0m" &>>${log}
+pip3.6 install -r requirements.txt &>>${log}
+
+func_systemd
 }
