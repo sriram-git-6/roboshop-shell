@@ -38,7 +38,7 @@ nodejs()
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Install mongo client <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   yum install mongodb-org-shell -y &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Load user schema <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Load user schema <<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   mongo --host mongodb.devops746.online </app/schema/${component}.js &>> ${log}
 
   echo -e "\e[36m >>>>>>>>>>>>>>>>>>Daemon reload and restart service <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
