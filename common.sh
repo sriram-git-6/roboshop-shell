@@ -1,7 +1,37 @@
-nodejs()
-{
-  log=/tmp/roboshop.log
+log=/tmp/roboshop.log
 
+func_prereq()
+{
+  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create user for roboshop <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    useradd roboshop &>> ${log}
+
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> delete app directory <<<<<<<<<<<\e[0m" | tee -a ${log}
+    rm -rf /app &>> ${log}
+
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create application directory <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    mkdir /app &>> ${log}
+
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Download application content <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    curl -L -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/user.zip &>> ${log}
+
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Change directory to app <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    cd /app &>> ${log}
+
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Extract the application content <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    unzip /tmp/${component}.zip &>> ${log}
+}
+
+func_systemd()
+{
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>>Daemon reload and restart service <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    systemctl daemon-reload &>> ${log}
+    systemctl enable ${component} &>> ${log}
+    systemctl restart ${component} &>> ${log}
+}
+
+
+func_nodejs_cat_user()
+{
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create user service <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   cp ${component}.service /etc/systemd/system/${component}.service &>> ${log}
 
@@ -14,23 +44,7 @@ nodejs()
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Install nodejs <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   yum install nodejs -y &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create user for roboshop <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  useradd roboshop &>> ${log}
-
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> delete app directory <<<<<<<<<<<\e[0m" | tee -a ${log}
-  rm -rf /app &>> ${log}
-
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create application directory <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  mkdir /app &>> ${log}
-
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Download application content <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  curl -L -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/user.zip &>> ${log}
-
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Change directory to app <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  cd /app &>> ${log}
-
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Extract the application content <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  unzip /tmp/${component}.zip &>> ${log}
+  func_prereq
 
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Install nodejs dependencies <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   npm install &>> ${log}
@@ -41,8 +55,32 @@ nodejs()
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Load user schema <<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   mongo --host mongodb.devops746.online </app/schema/${component}.js &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>>Daemon reload and restart service <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+  func_systemd
+
+}
+
+func_javaship()
+{
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Create shipping service<<<<<<<<<<<\e[0m" | tee -a {log}
+  cp ${component}.service /etc/systemd/system/${component}.service &>> ${log}
+
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Install maven<<<<<<<<<<<\e[0m" | tee -a {log}
+  yum install maven -y &>> ${log}
+
+  func_prereq
+
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Build the package<<<<<<<<<<<\e[0m" | tee -a {log}
+  mvn clean package &>> ${log}
+  mv target/${component}-1.0.jar ${component}.jar &>> ${log}
+
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Daemon Reload<<<<<<<<<<<\e[0m" | tee -a {log}
   systemctl daemon-reload &>> ${log}
-  systemctl enable ${component} &>> ${log}
-  systemctl restart ${component} &>> ${log}
+
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Install mysql client<<<<<<<<<<<\e[0m" | tee -a {log}
+  yum install mysql -y &>> ${log}
+
+  echo -e "\e[36m >>>>>>>>>>>>>>>>Load schema<<<<<<<<<<<\e[0m" | tee -a {log}
+  mysql -h mysql.devops746.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>> ${log}
+
+  func_systemd
 }
