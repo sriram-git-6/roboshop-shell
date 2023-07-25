@@ -32,8 +32,27 @@ func_systemd()
     systemctl restart ${component} &>> ${log}
 }
 
+func_schema_setup()
+{
+  if [ "${schema_type}" == "mongodb" ]; then
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Install mongo client <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    yum install mongodb-org-shell -y &>> ${log}
 
-func_nodejs_cat_user()
+    echo -e "\e[36m >>>>>>>>>>>>>>>>>> Load user schema <<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
+    mongo --host mongodb.devops746.online </app/schema/${component}.js &>> ${log}
+  fi
+
+  if  [ "${schema_type}" == "mysql" ]; then
+     echo -e "\e[36m >>>>>>>>>>>>>>>>Install mysql client<<<<<<<<<<<\e[0m" | tee -a ${log}
+     yum install mysql -y &>> ${log}
+
+     echo -e "\e[36m >>>>>>>>>>>>>>>>Load schema<<<<<<<<<<<\e[0m" | tee -a ${log}
+     mysql -h mysql.devops746.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>> ${log}
+  fi
+}
+
+
+func_nodejs_cat_user_cart()
 {
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Create mongodb repofile <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   cp mongo-repofile /etc/yum.repos.d/mongo.repo &>> ${log}
@@ -49,11 +68,7 @@ func_nodejs_cat_user()
   echo -e "\e[36m >>>>>>>>>>>>>>>>>> Install nodejs dependencies <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
   npm install &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Install mongo client <<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  yum install mongodb-org-shell -y &>> ${log}
-
-  echo -e "\e[36m >>>>>>>>>>>>>>>>>> Load user schema <<<<<<<<<<<<<<<<\e[0m" | tee -a ${log}
-  mongo --host mongodb.devops746.online </app/schema/${component}.js &>> ${log}
+  func_schema_setup
 
   func_systemd
 
@@ -73,11 +88,7 @@ func_javaship()
   echo -e "\e[36m >>>>>>>>>>>>>>>>Daemon Reload<<<<<<<<<<<\e[0m" | tee -a ${log}
   systemctl daemon-reload &>> ${log}
 
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Install mysql client<<<<<<<<<<<\e[0m" | tee -a ${log}
-  yum install mysql -y &>> ${log}
-
-  echo -e "\e[36m >>>>>>>>>>>>>>>>Load schema<<<<<<<<<<<\e[0m" | tee -a ${log}
-  mysql -h mysql.devops746.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>> ${log}
+  func_schema_setup
 
   func_systemd
 }
