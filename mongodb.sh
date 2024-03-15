@@ -54,3 +54,5 @@ VALIDATE $? "Edited mongodb conf"
 systemctl restart mongod &>> $LOGFILE
 
 VALIDATE $? "Restarting mongodb"
+
+# after running the above script to check the whether the mongodb is installed or not execute netstat -lntp and systemctl status mongod
